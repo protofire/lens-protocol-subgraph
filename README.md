@@ -1,6 +1,7 @@
 # Subgraph for Lens Protocols
 
 -In process-
+
 **How to deploy**
 
 1. Clone the repository
