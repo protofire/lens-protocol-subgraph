@@ -1,6 +1,6 @@
 {
   "name": "lens-subgraph",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.29.2",
-    "@graphprotocol/graph-ts": "0.26.0"
+    "@graphprotocol/graph-ts": "0.26.0",
+    "@protofire/subgraph-toolkit": "^0.1.2"
   }
 }

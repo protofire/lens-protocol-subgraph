@@ -1,6 +1,135 @@
-type ExampleEntity @entity {
+type LensInfo @entity {
   id: ID!
-  count: BigInt!
-  previousAdmin: Bytes! # address
-  newAdmin: Bytes! # address
+  "Total profiles"
+  totalProfiles: BigInt!
+  "Total accounts"
+  totalAccounts: BigInt!
+  "Total Post"
+  totalPosts: BigInt!
+  "Total Comments"
+  totalComments: BigInt!
+  "Total Mirrors"
+  totalMirror: BigInt!
+  "Total Publicactions"
+  totalPublications: BigInt!
+  "Total Followers"
+  totalFollowers: BigInt!
+  "Last Comment created"
+  lastCommentCreatedAt: BigInt
+  "Last Post created"
+  lastPostCreatedAt: BigInt
+  "Last Mirror created"
+  lastMirrorCreatedAt: BigInt
+  "Last Profile created"
+  lastProfileCreated: BigInt
+}
+
+type Profile @entity {
+  id: ID!
+  "Number of profile"
+  profileId: BigInt!
+  "address from the creator profile"
+  creator: Creator!
+  "address from the owner creator profile"
+  owner: Account!
+  "User attempting to follow the profile should be issued a Follow NFT"
+  followNFT: Bytes
+  "IPFS has the follow data"
+  followNFTURI: String # string
+  "nickname of the profile"
+  handle: String # string
+  "URI image of the profile"
+  imageURI: String # string
+  "Date created profile"
+  createdAt: BigInt
+  "Follow Module Address"
+  followModule: Bytes
+  "Follow Module Return Data"
+  followModuleReturnData: Bytes
+  "Dispatcher address allowed to post, comment, mirror, set follow module and change the profile picture on behalf of the owner."
+  dispatcher: Bytes
+  "Last Date modify profile"
+  lastUpdated: BigInt!
+  "List of comments"
+  comments: [Comment!] @derivedFrom(field: "fromProfile")
+  "List of post"
+  posts: [Post!] @derivedFrom(field: "fromProfile")
+  "List of Mirrors"
+  mirrors: [Mirror!] @derivedFrom(field: "fromProfile")
+}
+
+type Account @entity {
+  id: ID!
+  "Address"
+  address: Bytes!
+  "List of Profiles"
+  profiles: [Profile!]! @derivedFrom(field: "owner")
+}
+
+type Creator @entity {
+  id: ID!
+  "Address"
+  address: Bytes!
+  "Account Address is whitelisted"
+  isWhitelisted: Boolean!
+  "Date last modify Address"
+  lastUpdated: BigInt!
+}
+
+interface Publication @entity {
+  id: ID!
+  fromProfile: Profile!
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  timestamp: BigInt!
+}
+
+type Post implements Publication @entity {
+  id: ID!
+  fromProfile: Profile!
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  timestamp: BigInt!
+  contentURI: String!
+  collectModule: Bytes!
+  collectModuleReturnData: Bytes
+}
+
+type Mirror implements Publication @entity {
+  id: ID!
+  fromProfile: Profile!
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  timestamp: BigInt!
+  profileIdPointed: BigInt!
+  pubIdPointed: BigInt!
+}
+
+type Comment implements Publication @entity {
+  id: ID!
+  fromProfile: Profile!
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  timestamp: BigInt!
+  contentURI: String!
+  profileIdPointed: BigInt!
+  pubIdPointed: BigInt!
+  collectModule: Bytes
+  collectModuleReturnData: Bytes
+}
+
+type Follow @entity {
+  id: ID!
+  "Follower Account. Why not ProfileId ?"
+  fromProfile: Account!
+
+  fromProfileAddress: String!
+  "array of profiles that are followed"
+  toProfile: [Profile!]
+  "date from when the follow initiated"
+  timestamp: BigInt!
 }
