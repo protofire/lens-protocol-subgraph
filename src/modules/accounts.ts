@@ -11,6 +11,7 @@ export namespace accounts {
     if (account == null) {
       account = new Account(accountId)
       account.address = accountAddress
+      account.following = []
       account.save()
 
       // +1 amount of lens profiles
@@ -19,5 +20,17 @@ export namespace accounts {
       lensInfo.save()
     }
     return account as Account
+  }
+
+  export function addFollowedProfile(accountAddress: Bytes, profilesNumberList: string[]): void {
+    let account = getOrCreateAccount(accountAddress)
+    let newFollowing: string[] = account.following
+
+    for (let i = 0; i < profilesNumberList.length; i = i + 1) {
+      newFollowing.push(profilesNumberList[i].toString())
+    }
+
+    account.following = newFollowing
+    account.save()
   }
 }

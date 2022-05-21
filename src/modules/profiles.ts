@@ -13,6 +13,10 @@ export namespace profiles {
       profile = new Profile(profileId)
       profile.profileId = profileNumber
       profile.createdAt = timeStamp
+      profile.totalComments = integer.ZERO
+      profile.totalPosts = integer.ZERO
+      profile.totalMirrors = integer.ZERO
+      profile.totalFollowers = integer.ZERO
 
       // +1 amount of lens profiles
       let lensInfo = lens.getOrCreateLensInfo()

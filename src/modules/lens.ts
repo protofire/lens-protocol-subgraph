@@ -1,24 +1,23 @@
 import { Bytes } from '@graphprotocol/graph-ts'
 import { integer } from '@protofire/subgraph-toolkit'
-import { LensInfo } from '../../generated/schema'
+import { Stat } from '../../generated/schema'
 import { LENS_ID } from '../constanst'
 
 export namespace lens {
-  export function getOrCreateLensInfo(): LensInfo {
-    let lens = LensInfo.load(LENS_ID)
-    if (lens == null) {
-      lens = new LensInfo(LENS_ID)
-      lens.totalAccounts = integer.ZERO
-      lens.totalProfiles = integer.ZERO
-      lens.totalPosts = integer.ZERO
-      lens.totalMirror = integer.ZERO
-      lens.totalAccounts = integer.ZERO
-      lens.totalPublications = integer.ZERO
-      lens.totalComments = integer.ZERO
-      lens.totalFollowers = integer.ZERO
+  export function getOrCreateLensInfo(): Stat {
+    let stats = Stat.load(LENS_ID)
+    if (stats == null) {
+      stats = new Stat(LENS_ID)
+      stats.totalAccounts = integer.ZERO
+      stats.totalProfiles = integer.ZERO
+      stats.totalPosts = integer.ZERO
+      stats.totalMirror = integer.ZERO
+      stats.totalAccounts = integer.ZERO
+      stats.totalPublications = integer.ZERO
+      stats.totalComments = integer.ZERO
 
-      lens.save()
+      stats.save()
     }
-    return lens as LensInfo
+    return stats as Stat
   }
 }

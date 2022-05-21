@@ -1,4 +1,4 @@
-type LensInfo @entity {
+type Stat @entity {
   id: ID!
   "Total profiles"
   totalProfiles: BigInt!
@@ -12,8 +12,6 @@ type LensInfo @entity {
   totalMirror: BigInt!
   "Total Publicactions"
   totalPublications: BigInt!
-  "Total Followers"
-  totalFollowers: BigInt!
   "Last Comment created"
   lastCommentCreatedAt: BigInt
   "Last Post created"
@@ -28,15 +26,15 @@ type Profile @entity {
   id: ID!
   "Number of profile"
   profileId: BigInt!
-  "address from the creator profile"
+  "Address from the creator profile"
   creator: Creator!
-  "address from the owner creator profile"
+  "Address from the owner creator profile"
   owner: Account!
   "User attempting to follow the profile should be issued a Follow NFT"
   followNFT: Bytes
   "IPFS has the follow data"
   followNFTURI: String # string
-  "nickname of the profile"
+  "Nickname of the profile"
   handle: String # string
   "URI image of the profile"
   imageURI: String # string
@@ -50,6 +48,14 @@ type Profile @entity {
   dispatcher: Bytes
   "Last Date modify profile"
   lastUpdated: BigInt!
+  "Total mirrors"
+  totalMirrors: BigInt!
+  "Total posts"
+  totalPosts: BigInt!
+  "Total comments"
+  totalComments: BigInt!
+  "Total Followers"
+  totalFollowers: BigInt!
   "List of comments"
   comments: [Comment!] @derivedFrom(field: "fromProfile")
   "List of post"
@@ -62,8 +68,10 @@ type Account @entity {
   id: ID!
   "Address"
   address: Bytes!
-  "List of Profiles"
+  "List of Profiles that own this account"
   profiles: [Profile!]! @derivedFrom(field: "owner")
+  "List of Followings Profiles"
+  following: [Profile!]!
 }
 
 type Creator @entity {
@@ -78,58 +86,70 @@ type Creator @entity {
 
 interface Publication @entity {
   id: ID!
+  "Profile that created the publication"
   fromProfile: Profile!
+  "Publication Id"
   pubId: BigInt!
   referenceModule: Bytes!
   referenceModuleReturnData: Bytes
+  "Date of creation"
   timestamp: BigInt!
 }
 
 type Post implements Publication @entity {
   id: ID!
+  "Profile that created the post"
   fromProfile: Profile!
+  "Publication Id"
   pubId: BigInt!
   referenceModule: Bytes!
   referenceModuleReturnData: Bytes
-  timestamp: BigInt!
+  "URI of the post content"
   contentURI: String!
   collectModule: Bytes!
   collectModuleReturnData: Bytes
+  "Date of creation"
+  timestamp: BigInt!
 }
 
 type Mirror implements Publication @entity {
   id: ID!
+  "Profile that created the post"
   fromProfile: Profile!
+  "Publication Id"
   pubId: BigInt!
   referenceModule: Bytes!
   referenceModuleReturnData: Bytes
-  timestamp: BigInt!
   profileIdPointed: BigInt!
   pubIdPointed: BigInt!
+  "Date of creation"
+  timestamp: BigInt!
 }
 
 type Comment implements Publication @entity {
   id: ID!
+  "Profile that created the post"
   fromProfile: Profile!
+  "Publication Id"
   pubId: BigInt!
   referenceModule: Bytes!
   referenceModuleReturnData: Bytes
-  timestamp: BigInt!
+  "URI of the post content"
   contentURI: String!
   profileIdPointed: BigInt!
   pubIdPointed: BigInt!
   collectModule: Bytes
   collectModuleReturnData: Bytes
+  "Date of creation"
+  timestamp: BigInt!
 }
 
 type Follow @entity {
   id: ID!
-  "Follower Account. Why not ProfileId ?"
-  fromProfile: Account!
-
-  fromProfileAddress: String!
-  "array of profiles that are followed"
+  "Follower Account. (Why not ProfileId ?)"
+  fromProfile: Account
+  "Array of profiles that are followed"
   toProfile: [Profile!]
-  "date from when the follow initiated"
+  "Date from when the follow initiated"
   timestamp: BigInt!
 }

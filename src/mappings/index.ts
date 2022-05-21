@@ -13,6 +13,7 @@ import {
   Followed,
 } from '../../generated/LensHub/LensHub'
 import { accounts, profiles, creators, publicactions, follows } from '../modules'
+import { Account } from '../../generated/schema'
 
 export function handleProfileCreated(event: ProfileCreated): void {
   let profile = profiles.getOrCreateProfile(event.params.profileId, event.params.timestamp)
@@ -110,6 +111,11 @@ export function handleCommentCreated(event: CommentCreated): void {
 }
 
 export function handleFollowed(event: Followed): void {
+  let newFollows: string[] = []
+  newFollows = event.params.profileIds.map<string>((profileId: BigInt): string => profileId.toString())
+
+  accounts.addFollowedProfile(event.params.follower, newFollows)
+
   let follow = follows.getOrCreateFollow(
     event.params.follower
       .toHexString()
@@ -118,10 +124,7 @@ export function handleFollowed(event: Followed): void {
   )
 
   follow.fromProfile = event.params.follower.toHexString()
-  let newFollows: string[] = []
-  newFollows = event.params.profileIds.map<string>((profileId: BigInt): string => profileId.toString())
   follow.toProfile = newFollows
-  follow.fromProfileAddress = event.params.follower.toHexString()
   follow.timestamp = event.params.timestamp
   follow.save()
 }
