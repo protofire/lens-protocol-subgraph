@@ -114,7 +114,7 @@ export function handleFollowed(event: Followed): void {
   let newFollows: string[] = []
   newFollows = event.params.profileIds.map<string>((profileId: BigInt): string => profileId.toString())
 
-  accounts.addFollowedProfile(event.params.follower, newFollows)
+  accounts.addFollowedProfile(event.params.follower, newFollows, event.params.timestamp)
 
   let follow = follows.getOrCreateFollow(
     event.params.follower
