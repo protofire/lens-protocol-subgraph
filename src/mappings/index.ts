@@ -1,5 +1,5 @@
-import { ADDRESS_ZERO, integer } from '@protofire/subgraph-toolkit'
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { ADDRESS_ZERO, integer, ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import {
   ProfileCreated,
   FollowNFTURISet,
@@ -11,17 +11,19 @@ import {
   MirrorCreated,
   CommentCreated,
   Followed,
+  DefaultProfileSet,
+  FollowNFTTransferred,
 } from '../../generated/LensHub/LensHub'
-import { accounts, profiles, creators, publicactions, follows } from '../modules'
+import { accounts, profiles, creators, publicactions, follows, transfersNFT } from '../modules'
 import { Account } from '../../generated/schema'
 
 export function handleProfileCreated(event: ProfileCreated): void {
   let profile = profiles.getOrCreateProfile(event.params.profileId, event.params.timestamp)
-  accounts.getOrCreateAccount(event.params.creator)
-  accounts.getOrCreateAccount(event.params.to)
+  let creator = accounts.getOrCreateAccount(event.params.creator)
+  let to = accounts.getOrCreateAccount(event.params.to)
 
-  profile.creator = event.params.creator.toHex()
-  profile.owner = event.params.to.toHex()
+  profile.creator = event.params.creator.toHexString()
+  profile.owner = event.params.to.toHexString()
   profile.followNFTURI = event.params.followNFTURI
   profile.followModule = event.params.followModule
   profile.handle = event.params.handle
@@ -29,6 +31,8 @@ export function handleProfileCreated(event: ProfileCreated): void {
   profile.imageURI = event.params.imageURI
   profile.lastUpdated = event.block.timestamp
 
+  creator.save()
+  to.save()
   profile.save()
 }
 
@@ -114,17 +118,78 @@ export function handleFollowed(event: Followed): void {
   let newFollows: string[] = []
   newFollows = event.params.profileIds.map<string>((profileId: BigInt): string => profileId.toString())
 
-  accounts.addFollowedProfile(event.params.follower, newFollows, event.params.timestamp)
+  // Remove to build it in transfer NFT event
+  //accounts.addFollowedProfile(event.params.follower, newFollows, event.params.timestamp)
 
   let follow = follows.getOrCreateFollow(
     event.params.follower
       .toHexString()
       .concat('-')
-      .concat(event.transaction.hash.toHexString()),
+      .concat(event.transaction.hash.toHex()),
   )
 
-  follow.fromProfile = event.params.follower.toHexString()
+  follow.fromAccount = event.params.follower.toHexString()
+  follow.fromProfileSTR = event.params.follower.toHexString()
   follow.toProfile = newFollows
   follow.timestamp = event.params.timestamp
   follow.save()
+}
+
+export function handleDefaultProfileSet(event: DefaultProfileSet): void {
+  let account = accounts.getOrCreateAccount(event.params.wallet)
+  account.defaultProfile = event.params.profileId.toString()
+  account.save()
+}
+
+export function handleFollowNFTTransferred(event: FollowNFTTransferred): void {
+  let transferId: string = event.params.profileId
+    .toString()
+    .concat('-')
+    .concat(event.transaction.hash.toHex())
+  let from = event.params.from.toHexString()
+  let to = event.params.to.toHexString()
+  let profile = profiles.getOrCreateProfile(event.params.profileId, event.block.timestamp)
+
+  if (from == ZERO_ADDRESS) {
+    // MINT FOLLOW NFT
+    let toAccount = accounts.getOrCreateAccount(event.params.to)
+
+    //add and count the follower to the profile and the fromAccount
+    profile.totalFollowers = profile.totalFollowers.plus(integer.ONE)
+    let newFollowers = profile.followers
+
+    if (newFollowers != null) {
+      newFollowers.push(toAccount.id)
+      profile.followers = newFollowers
+    }
+
+    let newFollowing = toAccount.following
+    if (newFollowing != null) {
+      newFollowing.push(profile.id)
+      toAccount.following = newFollowing
+    }
+    toAccount.totalFollowings = toAccount.totalFollowings.plus(integer.ONE)
+
+    toAccount.save()
+  } else if (to == ZERO_ADDRESS) {
+    // BURN FOLLOW NFT
+    let fromAccount = accounts.getOrCreateAccount(event.params.from)
+    profile.totalFollowers = profile.totalFollowers.minus(integer.ONE)
+
+    //minus and count the follower to the profile and the fromAccount
+    let newFollowing = fromAccount.following
+    const index = newFollowing.indexOf(profile.id)
+    if (index > -1) newFollowing.splice(index, 1)
+    fromAccount.following = newFollowing
+    fromAccount.totalFollowings = fromAccount.totalFollowings.minus(integer.ONE)
+  }
+  profile.save()
+
+  let nft = transfersNFT.getOrCreateTransfersNFT(transferId)
+  nft.from = event.params.from
+  nft.to = event.params.to
+  nft.timestamp = event.params.timestamp
+  nft.followNFTID = event.params.followNFTId
+  nft.profileId = event.params.profileId
+  nft.save()
 }

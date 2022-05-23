@@ -5,7 +5,7 @@ import { lens } from './lens'
 
 export namespace creators {
   export function getOrCreateCreator(accountAddress: Bytes, timeStamp: BigInt): Creator {
-    let creatorId = accountAddress.toHex()
+    let creatorId = accountAddress.toHexString()
 
     let creator = Creator.load(creatorId)
     if (creator == null) {

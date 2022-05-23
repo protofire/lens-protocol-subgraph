@@ -56,6 +56,8 @@ type Profile @entity {
   totalComments: BigInt!
   "Total Followers"
   totalFollowers: BigInt!
+  "List of followers Account"
+  followers: [Account!]
   "List of comments"
   comments: [Comment!] @derivedFrom(field: "fromProfile")
   "List of post"
@@ -68,10 +70,14 @@ type Account @entity {
   id: ID!
   "Address"
   address: Bytes!
+  "Default Profile"
+  defaultProfile: Profile
   "List of Profiles that own this account"
-  profiles: [Profile!]! @derivedFrom(field: "owner")
+  profiles: [Profile!] @derivedFrom(field: "owner")
   "List of Followings Profiles"
   following: [Profile!]!
+  "List of Following profiles"
+  totalFollowings: BigInt!
 }
 
 type Creator @entity {
@@ -146,10 +152,22 @@ type Comment implements Publication @entity {
 
 type Follow @entity {
   id: ID!
-  "Follower Account. (Why not ProfileId ?)"
-  fromProfile: Account
+  "Follower Account. "
+  fromAccount: Account
+
+  fromProfileSTR: String
   "Array of profiles that are followed"
   toProfile: [Profile!]
   "Date from when the follow initiated"
   timestamp: BigInt!
+}
+
+type FollowNFTTransferred @entity {
+  id: ID!
+  profileId: BigInt
+  followNFTID: BigInt
+  from: Bytes
+  to: Bytes
+  timestamp: BigInt
+  data: String
 }

@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS, integer } from '@protofire/subgraph-toolkit'
 import { Profile } from '../../generated/schema'
 import { lens } from './lens'
@@ -17,6 +17,7 @@ export namespace profiles {
       profile.totalPosts = integer.ZERO
       profile.totalMirrors = integer.ZERO
       profile.totalFollowers = integer.ZERO
+      profile.followers = new Array<string>()
 
       // +1 amount of lens profiles
       let lensInfo = lens.getOrCreateLensInfo()

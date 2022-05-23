@@ -109,4 +109,3 @@ contract.sol
 *.contract.sol
 .DS_Store
 .vscode
-subgraph.yaml.OLD
