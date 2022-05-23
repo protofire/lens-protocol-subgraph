@@ -1,7 +1,7 @@
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS, integer } from '@protofire/subgraph-toolkit'
 import { Account } from '../../generated/schema'
-import { lens } from './lens'
+import { stats } from './lens'
 import { profiles } from '../modules'
 
 export namespace accounts {
@@ -14,14 +14,23 @@ export namespace accounts {
       account.address = accountAddress
       account.totalFollowings = integer.ZERO
       account.following = new Array<string>()
+      account.profilesIds = new Array<string>()
       //account.save()
 
       // +1 amount of lens profiles
-      let lensInfo = lens.getOrCreateLensInfo()
+      let lensInfo = stats.getOrCreateLensInfo()
       lensInfo.totalAccounts = lensInfo.totalAccounts.plus(integer.ONE)
       lensInfo.save()
     }
     return account as Account
+  }
+
+  export function getListProfileOwned(account: Account, profileId: BigInt): Array<string> {
+    let newListProfiles = account.profilesIds
+    newListProfiles.push(profileId.toString())
+    account.profilesIds = newListProfiles
+
+    return newListProfiles
   }
 
   // OLD ONE

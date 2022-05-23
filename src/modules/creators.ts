@@ -1,7 +1,6 @@
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS, integer } from '@protofire/subgraph-toolkit'
 import { Creator } from '../../generated/schema'
-import { lens } from './lens'
 
 export namespace creators {
   export function getOrCreateCreator(accountAddress: Bytes, timeStamp: BigInt): Creator {

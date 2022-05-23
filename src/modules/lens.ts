@@ -3,21 +3,21 @@ import { integer } from '@protofire/subgraph-toolkit'
 import { Stat } from '../../generated/schema'
 import { LENS_ID } from '../constanst'
 
-export namespace lens {
+export namespace stats {
   export function getOrCreateLensInfo(): Stat {
-    let stats = Stat.load(LENS_ID)
-    if (stats == null) {
-      stats = new Stat(LENS_ID)
-      stats.totalAccounts = integer.ZERO
-      stats.totalProfiles = integer.ZERO
-      stats.totalPosts = integer.ZERO
-      stats.totalMirror = integer.ZERO
-      stats.totalAccounts = integer.ZERO
-      stats.totalPublications = integer.ZERO
-      stats.totalComments = integer.ZERO
+    let statInfo = Stat.load(LENS_ID)
+    if (statInfo == null) {
+      statInfo = new Stat(LENS_ID)
+      statInfo.totalAccounts = integer.ZERO
+      statInfo.totalProfiles = integer.ZERO
+      statInfo.totalPosts = integer.ZERO
+      statInfo.totalMirror = integer.ZERO
+      statInfo.totalAccounts = integer.ZERO
+      statInfo.totalPublications = integer.ZERO
+      statInfo.totalComments = integer.ZERO
 
-      stats.save()
+      statInfo.save()
     }
-    return stats as Stat
+    return statInfo as Stat
   }
 }

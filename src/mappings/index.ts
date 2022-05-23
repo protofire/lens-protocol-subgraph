@@ -14,13 +14,15 @@ import {
   DefaultProfileSet,
   FollowNFTTransferred,
 } from '../../generated/LensHub/LensHub'
-import { accounts, profiles, creators, publicactions, follows, transfersNFT } from '../modules'
+import { accounts, profiles, creators, publicactions, follows, transfersNFT, stats } from '../modules'
 import { Account } from '../../generated/schema'
+import { LENS_ID } from '../constanst'
 
 export function handleProfileCreated(event: ProfileCreated): void {
   let profile = profiles.getOrCreateProfile(event.params.profileId, event.params.timestamp)
   let creator = accounts.getOrCreateAccount(event.params.creator)
   let to = accounts.getOrCreateAccount(event.params.to)
+  to.profilesIds = accounts.getListProfileOwned(to, event.params.profileId)
 
   profile.creator = event.params.creator.toHexString()
   profile.owner = event.params.to.toHexString()
@@ -82,6 +84,10 @@ export function handlePostCreated(event: PostCreated): void {
   post.collectModule = event.params.collectModule
   post.collectModuleReturnData = event.params.collectModuleReturnData
 
+  let stat = stats.getOrCreateLensInfo()
+  stat.lastPostCreatedAt = event.params.timestamp
+  stat.save()
+
   post.save()
 }
 
@@ -94,6 +100,10 @@ export function handleMirrorCreated(event: MirrorCreated): void {
   mirror.timestamp = event.params.timestamp
   mirror.profileIdPointed = event.params.profileIdPointed
   mirror.pubIdPointed = event.params.pubIdPointed
+
+  let stat = stats.getOrCreateLensInfo()
+  stat.lastMirrorCreatedAt = event.params.timestamp
+  stat.save()
 
   mirror.save()
 }
@@ -110,6 +120,10 @@ export function handleCommentCreated(event: CommentCreated): void {
   comment.pubIdPointed = event.params.pubIdPointed
   comment.collectModule = event.params.collectModule
   comment.collectModuleReturnData = event.params.collectModuleReturnData
+
+  let stat = stats.getOrCreateLensInfo()
+  stat.lastCommentCreatedAt = event.params.timestamp
+  stat.save()
 
   comment.save()
 }
@@ -169,6 +183,7 @@ export function handleFollowNFTTransferred(event: FollowNFTTransferred): void {
       toAccount.following = newFollowing
     }
     toAccount.totalFollowings = toAccount.totalFollowings.plus(integer.ONE)
+    profiles.updateProfilesFollowings(toAccount.profilesIds, newFollowing, toAccount.totalFollowings)
 
     toAccount.save()
   } else if (to == ZERO_ADDRESS) {
@@ -182,6 +197,10 @@ export function handleFollowNFTTransferred(event: FollowNFTTransferred): void {
     if (index > -1) newFollowing.splice(index, 1)
     fromAccount.following = newFollowing
     fromAccount.totalFollowings = fromAccount.totalFollowings.minus(integer.ONE)
+
+    // update de total of the following and the list to all the profiles from the address account
+    profiles.updateProfilesFollowings(fromAccount.profilesIds, newFollowing, fromAccount.totalFollowings)
+    fromAccount.save()
   }
   profile.save()
 

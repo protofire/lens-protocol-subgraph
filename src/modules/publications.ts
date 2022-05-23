@@ -1,7 +1,7 @@
 import { ADDRESS_ZERO, integer } from '@protofire/subgraph-toolkit'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { Post, Comment, Mirror } from '../../generated/schema'
-import { lens } from './lens'
+import { stats } from './lens'
 
 export namespace publicactions {
   export namespace helpers {
@@ -20,7 +20,7 @@ export namespace publicactions {
       post = new Post(publicationId)
 
       // +1 amount of Post
-      let lensInfo = lens.getOrCreateLensInfo()
+      let lensInfo = stats.getOrCreateLensInfo()
       lensInfo.totalPosts = lensInfo.totalPosts.plus(integer.ONE)
       lensInfo.totalPublications = lensInfo.totalPublications.plus(integer.ONE)
       lensInfo.save()
@@ -35,7 +35,7 @@ export namespace publicactions {
       mirror = new Mirror(publicationId)
 
       // +1 amount of Mirror
-      let lensInfo = lens.getOrCreateLensInfo()
+      let lensInfo = stats.getOrCreateLensInfo()
       lensInfo.totalMirror = lensInfo.totalMirror.plus(integer.ONE)
       lensInfo.totalPublications = lensInfo.totalPublications.plus(integer.ONE)
       lensInfo.save()
@@ -50,7 +50,7 @@ export namespace publicactions {
       comment = new Comment(publicationId)
 
       // +1 amount of Comments
-      let lensInfo = lens.getOrCreateLensInfo()
+      let lensInfo = stats.getOrCreateLensInfo()
       lensInfo.totalComments = lensInfo.totalComments.plus(integer.ONE)
       lensInfo.totalPublications = lensInfo.totalPublications.plus(integer.ONE)
 
