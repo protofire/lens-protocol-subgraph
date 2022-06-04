@@ -1,3 +1,28 @@
+type Job @entity {
+  id: ID!
+  title: String
+  applicants: [Account!]
+  applicantsLimit: Int
+  organization: Organization
+  description: String
+  createdAt: BigInt
+  lastUpdatedAt: BigInt
+  status: Status
+}
+
+enum Status {
+  Open
+  Closed
+  Stopped
+}
+
+type Organization @entity {
+  id: ID!
+  name: String
+  jobs: [Job!]
+  createdAt: BigInt
+}
+
 type Stat @entity {
   id: ID!
   "Total profiles"
