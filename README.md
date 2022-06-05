@@ -22,7 +22,7 @@ https://polygonscan.com/address/0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d
 **Official Website :**
 https://lens.xyz/
 
-**Deleveloper Docs**
+**Developer Docs**
 https://docs.lens.xyz/docs
 
 ```mermaid
